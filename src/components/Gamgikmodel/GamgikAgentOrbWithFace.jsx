@@ -50,12 +50,14 @@ export default function GarimAgentOrbWithFace({
   const wrapRef = useRef(null);
   const blinkTimerRef = useRef(null);
   const clickTimerRef = useRef(null);
+  const motionTimerRef = useRef(null);
   const resetTimerRef = useRef(null);
   const expressionTimerRef = useRef(null);
   const expressionRef = useRef('idle');
 
   const [look, setLook] = useState({ x: 0, y: 0 });
   const [expression, setExpression] = useState('idle');
+  const [isClickMoving, setIsClickMoving] = useState(false);
 
   useEffect(() => {
     expressionRef.current = expression;
@@ -85,6 +87,7 @@ export default function GarimAgentOrbWithFace({
     return () => {
       if (blinkTimerRef.current) window.clearTimeout(blinkTimerRef.current);
       if (clickTimerRef.current) window.clearTimeout(clickTimerRef.current);
+      if (motionTimerRef.current) window.clearTimeout(motionTimerRef.current);
       if (resetTimerRef.current) window.clearTimeout(resetTimerRef.current);
       if (expressionTimerRef.current) window.clearTimeout(expressionTimerRef.current);
     };
@@ -132,9 +135,23 @@ export default function GarimAgentOrbWithFace({
     }, duration);
   }
 
+  function playClickMotion() {
+    if (motionTimerRef.current) window.clearTimeout(motionTimerRef.current);
+
+    setIsClickMoving(false);
+
+    window.requestAnimationFrame(() => {
+      setIsClickMoving(true);
+      motionTimerRef.current = window.setTimeout(() => {
+        setIsClickMoving(false);
+      }, 520);
+    });
+  }
+
   function handleClick(event) {
     if (event.detail >= 2) {
       if (clickTimerRef.current) window.clearTimeout(clickTimerRef.current);
+      playClickMotion();
       triggerExpression('surprised', 720);
       return;
     }
@@ -157,14 +174,16 @@ export default function GarimAgentOrbWithFace({
       }}
       onClick={handleClick}
     >
-      <GarimReferenceOrb size={size} speed={speed} motion={motion} statusKey={statusKey} />
+      <div className={`garim-agent-motion ${isClickMoving ? 'is-click-moving' : ''}`}>
+        <GarimReferenceOrb size={size} speed={speed} motion={motion} statusKey={statusKey} />
 
-      <AgentFace look={look} expression={expression} />
+        <AgentFace look={look} expression={expression} />
 
-      <div className={`garim-surprise-marks is-${expression}`} aria-hidden="true">
-        <i className="garim-surprise-mark garim-surprise-mark-left" />
-        <i className="garim-surprise-mark garim-surprise-mark-middle" />
-        <i className="garim-surprise-mark garim-surprise-mark-right" />
+        <div className={`garim-surprise-marks is-${expression}`} aria-hidden="true">
+          <i className="garim-surprise-mark garim-surprise-mark-left" />
+          <i className="garim-surprise-mark garim-surprise-mark-middle" />
+          <i className="garim-surprise-mark garim-surprise-mark-right" />
+        </div>
       </div>
 
       <style>{`
@@ -175,6 +194,16 @@ export default function GarimAgentOrbWithFace({
           isolation: isolate;
           cursor: pointer;
           user-select: none;
+        }
+
+        .garim-agent-motion {
+          position: absolute;
+          inset: 0;
+          transform-origin: 50% 58%;
+        }
+
+        .garim-agent-motion.is-click-moving {
+          animation: garimAgentClickMove 520ms cubic-bezier(0.2, 0.9, 0.22, 1);
         }
 
         .garim-agent-orb-wrap.garim-agent-orb-modal-visual {
@@ -517,8 +546,31 @@ export default function GarimAgentOrbWithFace({
           }
         }
 
+        @keyframes garimAgentClickMove {
+          0% {
+            transform: translate3d(0, 0, 0) scale(1);
+          }
+
+          18% {
+            transform: translate3d(0, 8px, 0) scale(0.97, 0.94);
+          }
+
+          42% {
+            transform: translate3d(0, -10px, 0) scale(1.035, 1.045);
+          }
+
+          68% {
+            transform: translate3d(0, 4px, 0) scale(0.99, 0.985);
+          }
+
+          100% {
+            transform: translate3d(0, 0, 0) scale(1);
+          }
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .garim-agent-face,
+          .garim-agent-motion,
           .garim-eye-layer,
           .garim-eye,
           .garim-face-glow,
