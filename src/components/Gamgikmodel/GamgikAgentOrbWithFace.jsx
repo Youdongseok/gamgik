@@ -8,16 +8,16 @@ function clamp(value, min, max) {
 }
 
 function AgentFace({ look, expression }) {
-  const faceY = look.y > 0 ? look.y * 5.2 : look.y * 2.8;
-  const eyeY = look.y > 0 ? look.y * 8 : look.y * 4.4;
+  const faceY = look.y * 6.2;
+  const eyeY = look.y * 10.5;
 
   return (
     <div
       className={`garim-agent-face is-${expression}`}
       style={{
-        '--face-x': `${look.x * 3.2}px`,
+        '--face-x': `${look.x * 4.6}px`,
         '--face-y': `${faceY}px`,
-        '--eye-x': `${look.x * 5.2}px`,
+        '--eye-x': `${look.x * 8.8}px`,
         '--eye-y': `${eyeY}px`,
       }}
     >
@@ -49,6 +49,7 @@ export default function GarimAgentOrbWithFace({
 }) {
   const wrapRef = useRef(null);
   const blinkTimerRef = useRef(null);
+  const clickTimerRef = useRef(null);
   const resetTimerRef = useRef(null);
   const expressionTimerRef = useRef(null);
   const expressionRef = useRef('idle');
@@ -83,6 +84,7 @@ export default function GarimAgentOrbWithFace({
 
     return () => {
       if (blinkTimerRef.current) window.clearTimeout(blinkTimerRef.current);
+      if (clickTimerRef.current) window.clearTimeout(clickTimerRef.current);
       if (resetTimerRef.current) window.clearTimeout(resetTimerRef.current);
       if (expressionTimerRef.current) window.clearTimeout(expressionTimerRef.current);
     };
@@ -90,13 +92,13 @@ export default function GarimAgentOrbWithFace({
 
   useEffect(() => {
     function handlePointerMove(event) {
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
-      const rangeX = Math.max(window.innerWidth / 2, 1);
-      const rangeY = Math.max(window.innerHeight / 2, 1);
+      const rect = wrapRef.current?.getBoundingClientRect();
+      const centerX = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+      const centerY = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+      const range = Math.max(rect ? Math.min(rect.width, rect.height) * 0.62 : 180, 1);
 
-      const x = (event.clientX - centerX) / rangeX;
-      const y = (event.clientY - centerY) / rangeY;
+      const x = (event.clientX - centerX) / range;
+      const y = (event.clientY - centerY) / range;
 
       setLook({
         x: clamp(x, -1, 1),
@@ -104,10 +106,18 @@ export default function GarimAgentOrbWithFace({
       });
     }
 
+    function resetLook() {
+      setLook({ x: 0, y: 0 });
+    }
+
     window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerleave', resetLook);
+    window.addEventListener('blur', resetLook);
 
     return () => {
       window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerleave', resetLook);
+      window.removeEventListener('blur', resetLook);
     };
   }, []);
 
@@ -123,10 +133,18 @@ export default function GarimAgentOrbWithFace({
   }
 
   function handleClick(event) {
+    if (event.detail >= 2) {
+      if (clickTimerRef.current) window.clearTimeout(clickTimerRef.current);
+      triggerExpression('surprised', 720);
+      return;
+    }
+
     const rect = event.currentTarget.getBoundingClientRect();
     const nextExpression = event.clientX < rect.left + rect.width / 2 ? 'wink-left' : 'wink-right';
 
-    triggerExpression(nextExpression, 520);
+    clickTimerRef.current = window.setTimeout(() => {
+      triggerExpression(nextExpression, 520);
+    }, 180);
   }
 
   return (
@@ -142,6 +160,12 @@ export default function GarimAgentOrbWithFace({
       <GarimReferenceOrb size={size} speed={speed} motion={motion} statusKey={statusKey} />
 
       <AgentFace look={look} expression={expression} />
+
+      <div className={`garim-surprise-marks is-${expression}`} aria-hidden="true">
+        <i className="garim-surprise-mark garim-surprise-mark-left" />
+        <i className="garim-surprise-mark garim-surprise-mark-middle" />
+        <i className="garim-surprise-mark garim-surprise-mark-right" />
+      </div>
 
       <style>{`
         .garim-agent-orb-wrap {
@@ -384,6 +408,86 @@ export default function GarimAgentOrbWithFace({
 
         .garim-agent-face.is-blink .garim-eye-pillar {
           opacity: 0.62;
+        }
+
+        .garim-agent-face.is-surprised .garim-eye {
+          width: 12%;
+          transform: translateY(-50%) scaleY(1.12);
+          filter:
+            drop-shadow(0 0 5px rgba(255, 255, 255, 1))
+            drop-shadow(0 0 13px rgba(210, 245, 255, 0.86))
+            drop-shadow(0 0 24px rgba(139, 92, 246, 0.58));
+        }
+
+        .garim-agent-face.is-surprised .garim-eye-pillar {
+          width: 50%;
+          height: 108%;
+          border-radius: 999px;
+        }
+
+        .garim-agent-face.is-surprised .garim-face-glow {
+          opacity: 0.9;
+        }
+
+        .garim-surprise-marks {
+          position: absolute;
+          left: 18%;
+          top: 13%;
+          width: 26%;
+          height: 24%;
+          z-index: 6;
+          pointer-events: none;
+          opacity: 0;
+          transform: scale(0.84) translateY(8px);
+          transform-origin: 70% 80%;
+          transition:
+            opacity 120ms ease,
+            transform 180ms cubic-bezier(0.2, 1.2, 0.24, 1);
+        }
+
+        .garim-surprise-marks.is-surprised {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+
+        .garim-surprise-mark {
+          position: absolute;
+          display: block;
+          width: 9%;
+          height: 39%;
+          border-radius: 999px;
+          background:
+            linear-gradient(
+              180deg,
+              rgba(255, 255, 255, 1) 0%,
+              rgba(250, 253, 255, 1) 48%,
+              rgba(222, 232, 255, 0.96) 100%
+            );
+          box-shadow:
+            0 0 5px rgba(255, 255, 255, 0.95),
+            0 0 14px rgba(184, 184, 255, 0.78),
+            0 0 27px rgba(112, 92, 255, 0.62);
+        }
+
+        .garim-surprise-mark-left {
+          left: 4%;
+          top: 55%;
+          height: 35%;
+          transform: rotate(-62deg);
+        }
+
+        .garim-surprise-mark-middle {
+          left: 31%;
+          top: 25%;
+          height: 42%;
+          transform: rotate(-36deg);
+        }
+
+        .garim-surprise-mark-right {
+          left: 62%;
+          top: 4%;
+          height: 45%;
+          transform: rotate(-10deg);
         }
 
         .garim-agent-orb-wrap:hover .garim-agent-face {
