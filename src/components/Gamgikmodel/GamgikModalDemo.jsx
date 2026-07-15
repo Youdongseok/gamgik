@@ -97,6 +97,14 @@ export default function GamgikModalDemo() {
         >
           졸린 표정
         </button>
+
+        <button
+          type="button"
+          onClick={() => showExpression('searching', 1800)}
+          className="rounded-md border border-indigo-200/30 bg-indigo-300/12 px-5 py-2.5 text-sm font-semibold text-indigo-50 shadow-[0_0_24px_rgba(165,180,252,0.14)] transition hover:border-indigo-100/55 hover:bg-indigo-300/20 focus:outline-none focus:ring-2 focus:ring-indigo-200/55"
+        >
+          검색중
+        </button>
       </div>
     </section>
   );
