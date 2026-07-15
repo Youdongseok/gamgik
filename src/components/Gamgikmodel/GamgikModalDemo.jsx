@@ -56,6 +56,14 @@ export default function GamgikModalDemo() {
         >
           \ / 화난 표정
         </button>
+
+        <button
+          type="button"
+          onClick={() => showExpression('crying')}
+          className="rounded-md border border-sky-200/30 bg-sky-300/12 px-5 py-2.5 text-sm font-semibold text-sky-50 shadow-[0_0_24px_rgba(125,211,252,0.14)] transition hover:border-sky-100/55 hover:bg-sky-300/20 focus:outline-none focus:ring-2 focus:ring-sky-200/55"
+        >
+          ㅠ ㅠ 우는 표정
+        </button>
       </div>
     </section>
   );

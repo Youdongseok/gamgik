@@ -36,6 +36,11 @@ function AgentFace({ look, expression }) {
           <i className="garim-chevron-line garim-chevron-bottom" />
         </span>
       </div>
+
+      <div className="garim-tear-layer" aria-hidden="true">
+        <i className="garim-tear garim-tear-left" />
+        <i className="garim-tear garim-tear-right" />
+      </div>
     </div>
   );
 }
@@ -562,12 +567,12 @@ export default function GarimAgentOrbWithFace({
         }
 
         .garim-agent-face.is-angry .garim-eye {
-          width: 10%;
-          height: 64%;
+          width: 12%;
+          transform: translateY(-50%) scaleY(1.12);
           filter:
             drop-shadow(0 0 5px rgba(255, 255, 255, 1))
-            drop-shadow(0 0 13px rgba(210, 245, 255, 0.8))
-            drop-shadow(0 0 22px rgba(139, 92, 246, 0.52));
+            drop-shadow(0 0 13px rgba(210, 245, 255, 0.86))
+            drop-shadow(0 0 24px rgba(139, 92, 246, 0.58));
         }
 
         .garim-agent-face.is-angry .garim-eye-left {
@@ -580,7 +585,9 @@ export default function GarimAgentOrbWithFace({
 
         .garim-agent-face.is-angry .garim-eye-pillar {
           opacity: 1;
-          height: 100%;
+          width: 50%;
+          height: 108%;
+          border-radius: 999px;
           transform: translate(-50%, -50%);
         }
 
@@ -599,6 +606,81 @@ export default function GarimAgentOrbWithFace({
 
         .garim-agent-face.is-angry .garim-face-glow {
           opacity: 0.82;
+        }
+
+        .garim-tear-layer {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 86%;
+          height: 58%;
+          transform:
+            translate(-50%, -50%)
+            translate(var(--eye-x), var(--eye-y))
+            scale(0.86);
+          pointer-events: none;
+          opacity: 0;
+          transition:
+            opacity 110ms ease,
+            transform 160ms ease;
+        }
+
+        .garim-tear {
+          position: absolute;
+          top: 110%;
+          width: 7%;
+          aspect-ratio: 0.78;
+          border-radius: 999px 999px 999px 0;
+          background:
+            radial-gradient(circle at 36% 30%, rgba(255, 255, 255, 0.98) 0 12%, transparent 13%),
+            linear-gradient(
+              135deg,
+              rgba(255, 255, 255, 0.96) 0%,
+              rgba(226, 248, 255, 0.98) 42%,
+              rgba(134, 210, 255, 0.9) 100%
+            );
+          box-shadow:
+            inset 0 0 4px rgba(255, 255, 255, 0.82),
+            0 0 6px rgba(255, 255, 255, 0.72),
+            0 0 14px rgba(154, 220, 255, 0.5);
+          transition: transform 120ms ease;
+        }
+
+        .garim-tear-left {
+          left: 25%;
+          transform: translate(-50%, -50%) scaleX(-1) rotate(135deg);
+        }
+
+        .garim-tear-right {
+          left: 75%;
+          transform: translate(-50%, -50%) rotate(135deg);
+        }
+
+        .garim-agent-face.is-crying .garim-eye {
+          width: 12%;
+          transform: translateY(-50%) scaleY(1.12);
+          filter:
+            drop-shadow(0 0 5px rgba(255, 255, 255, 1))
+            drop-shadow(0 0 13px rgba(210, 245, 255, 0.86))
+            drop-shadow(0 0 24px rgba(139, 92, 246, 0.58));
+        }
+
+        .garim-agent-face.is-crying .garim-eye-pillar {
+          width: 50%;
+          height: 108%;
+          border-radius: 999px;
+        }
+
+        .garim-agent-face.is-crying .garim-tear-layer {
+          opacity: 1;
+          transform:
+            translate(-50%, -50%)
+            translate(var(--eye-x), var(--eye-y))
+            scale(1);
+        }
+
+        .garim-agent-face.is-crying .garim-face-glow {
+          opacity: 0.88;
         }
 
         .garim-surprise-marks {
@@ -786,6 +868,8 @@ export default function GarimAgentOrbWithFace({
           .garim-face-glow,
           .garim-eye-pillar,
           .garim-chevron-line,
+          .garim-tear-layer,
+          .garim-tear,
           .garim-anger-mark {
             transition: none !important;
             animation: none !important;
