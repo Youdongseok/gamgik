@@ -46,6 +46,7 @@ export default function GarimAgentOrbWithFace({
   motion = 0.78,
   statusKey = 'normal',
   className = '',
+  expressionOverride = null,
 }) {
   const wrapRef = useRef(null);
   const blinkTimerRef = useRef(null);
@@ -58,10 +59,22 @@ export default function GarimAgentOrbWithFace({
   const [look, setLook] = useState({ x: 0, y: 0 });
   const [expression, setExpression] = useState('idle');
   const [isClickMoving, setIsClickMoving] = useState(false);
+  const visibleExpression = expressionOverride ?? expression;
+
+  function triggerExpression(nextExpression, duration = 520) {
+    if (resetTimerRef.current) window.clearTimeout(resetTimerRef.current);
+    if (expressionTimerRef.current) window.clearTimeout(expressionTimerRef.current);
+
+    setExpression(nextExpression);
+
+    expressionTimerRef.current = window.setTimeout(() => {
+      setExpression('idle');
+    }, duration);
+  }
 
   useEffect(() => {
-    expressionRef.current = expression;
-  }, [expression]);
+    expressionRef.current = visibleExpression;
+  }, [visibleExpression]);
 
   useEffect(() => {
     function scheduleBlink() {
@@ -94,7 +107,25 @@ export default function GarimAgentOrbWithFace({
   }, []);
 
   useEffect(() => {
+    function isPointerInsideViewport(event) {
+      return (
+        event.clientX >= 0 &&
+        event.clientX <= window.innerWidth &&
+        event.clientY >= 0 &&
+        event.clientY <= window.innerHeight
+      );
+    }
+
+    function resetLook() {
+      setLook({ x: 0, y: 0 });
+    }
+
     function handlePointerMove(event) {
+      if (!isPointerInsideViewport(event)) {
+        resetLook();
+        return;
+      }
+
       const rect = wrapRef.current?.getBoundingClientRect();
       const centerX = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
       const centerY = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
@@ -109,31 +140,34 @@ export default function GarimAgentOrbWithFace({
       });
     }
 
-    function resetLook() {
-      setLook({ x: 0, y: 0 });
+    function handlePointerOut(event) {
+      if (!event.relatedTarget) {
+        resetLook();
+      }
+    }
+
+    function handleVisibilityChange() {
+      if (document.visibilityState !== 'visible') {
+        resetLook();
+      }
     }
 
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerleave', resetLook);
     window.addEventListener('blur', resetLook);
+    document.addEventListener('pointerout', handlePointerOut);
+    document.addEventListener('mouseleave', resetLook);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerleave', resetLook);
       window.removeEventListener('blur', resetLook);
+      document.removeEventListener('pointerout', handlePointerOut);
+      document.removeEventListener('mouseleave', resetLook);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
-
-  function triggerExpression(nextExpression, duration = 520) {
-    if (resetTimerRef.current) window.clearTimeout(resetTimerRef.current);
-    if (expressionTimerRef.current) window.clearTimeout(expressionTimerRef.current);
-
-    setExpression(nextExpression);
-
-    expressionTimerRef.current = window.setTimeout(() => {
-      setExpression('idle');
-    }, duration);
-  }
 
   function playClickMotion() {
     if (motionTimerRef.current) window.clearTimeout(motionTimerRef.current);
@@ -177,9 +211,9 @@ export default function GarimAgentOrbWithFace({
       <div className={`garim-agent-motion ${isClickMoving ? 'is-click-moving' : ''}`}>
         <GarimReferenceOrb size={size} speed={speed} motion={motion} statusKey={statusKey} />
 
-        <AgentFace look={look} expression={expression} />
+        <AgentFace look={look} expression={visibleExpression} />
 
-        <div className={`garim-surprise-marks is-${expression}`} aria-hidden="true">
+        <div className={`garim-surprise-marks is-${visibleExpression}`} aria-hidden="true">
           <i className="garim-surprise-mark garim-surprise-mark-left" />
           <i className="garim-surprise-mark garim-surprise-mark-middle" />
           <i className="garim-surprise-mark garim-surprise-mark-right" />
@@ -456,6 +490,49 @@ export default function GarimAgentOrbWithFace({
 
         .garim-agent-face.is-surprised .garim-face-glow {
           opacity: 0.9;
+        }
+
+        .garim-agent-face.is-happy .garim-eye {
+          width: 24%;
+          height: 64%;
+          transform: translateY(-50%) rotate(90deg);
+          filter:
+            drop-shadow(0 0 5px rgba(255, 255, 255, 1))
+            drop-shadow(0 0 13px rgba(210, 245, 255, 0.82))
+            drop-shadow(0 0 22px rgba(139, 92, 246, 0.52));
+        }
+
+        .garim-agent-face.is-happy .garim-eye-left {
+          left: 11%;
+        }
+
+        .garim-agent-face.is-happy .garim-eye-right {
+          right: 11%;
+        }
+
+        .garim-agent-face.is-happy .garim-eye-pillar {
+          opacity: 0;
+          transform: translate(-50%, -50%) scaleY(0.2);
+        }
+
+        .garim-agent-face.is-happy .garim-chevron-line {
+          left: 16%;
+          top: 50%;
+          width: 64%;
+          opacity: 1;
+          transform-origin: 8% 50%;
+        }
+
+        .garim-agent-face.is-happy .garim-chevron-top {
+          transform: translateY(-50%) rotate(-42deg);
+        }
+
+        .garim-agent-face.is-happy .garim-chevron-bottom {
+          transform: translateY(-50%) rotate(42deg);
+        }
+
+        .garim-agent-face.is-happy .garim-face-glow {
+          opacity: 0.86;
         }
 
         .garim-surprise-marks {
