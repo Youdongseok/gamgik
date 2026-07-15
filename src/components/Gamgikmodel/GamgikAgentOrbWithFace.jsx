@@ -66,13 +66,13 @@ function SearchDecorations({ expression }) {
 
       <g
         className="garim-search-card garim-search-card-bar"
-        transform="translate(26 72) rotate(-3)"
+        transform="translate(38 80) rotate(-3)"
       >
-        <rect className="garim-search-shape" x="0" y="0" width="156" height="42" rx="17" />
-        <rect className="garim-search-line" x="11" y="10" width="104" height="22" rx="10" />
-        <line className="garim-search-icon-line" x1="124" y1="12" x2="124" y2="30" />
-        <circle className="garim-search-icon-line" cx="143" cy="18" r="8" />
-        <line className="garim-search-icon-line" x1="149" y1="25" x2="158" y2="33" />
+        <rect className="garim-search-shape" x="0" y="0" width="128" height="34" rx="14" />
+        <rect className="garim-search-line" x="10" y="8" width="82" height="18" rx="9" />
+        <line className="garim-search-icon-line" x1="96" y1="10" x2="96" y2="25" />
+        <circle className="garim-search-icon-line" cx="111" cy="15" r="6.5" />
+        <line className="garim-search-icon-line" x1="116" y1="20" x2="123" y2="26" />
       </g>
 
       <g
@@ -113,13 +113,12 @@ function SearchDecorations({ expression }) {
         <line className="garim-search-icon-line" x1="32" y1="27" x2="44" y2="39" />
         <line className="garim-search-line" x1="51" y1="16" x2="81" y2="18" />
         <line className="garim-search-line" x1="51" y1="29" x2="73" y2="31" />
-      </g>
-
-      <g className="garim-search-magnifier" transform="translate(350 356) rotate(42)">
-        <circle className="garim-search-shape" cx="0" cy="0" r="23" />
-        <circle className="garim-search-icon-line" cx="0" cy="0" r="17" />
-        <rect className="garim-search-shape" x="18" y="-6" width="44" height="15" rx="5" />
-        <rect className="garim-search-icon-line" x="24" y="-3" width="27" height="8" rx="3" />
+        <g className="garim-search-magnifier" transform="translate(76 -42) rotate(42)">
+          <circle className="garim-search-shape" cx="0" cy="0" r="13" />
+          <circle className="garim-search-icon-line" cx="0" cy="0" r="8" />
+          <rect className="garim-search-shape" x="10" y="-4" width="22" height="9" rx="4" />
+          <rect className="garim-search-icon-line" x="15" y="-2" width="11" height="5" rx="2" />
+        </g>
       </g>
 
       <g className="garim-search-sparkles">
@@ -419,8 +418,8 @@ export default function GarimAgentOrbWithFace({
         }
 
         .garim-search-scene.is-searching .garim-search-magnifier {
-          animation: garimSearchInspect 2.2s ease-in-out infinite;
-          transform-origin: 350px 356px;
+          animation: garimSearchInspect 1.8s ease-in-out infinite;
+          transform-origin: 76px -42px;
         }
 
         .garim-search-scene.is-searching .garim-search-sparkles {
@@ -1086,8 +1085,8 @@ export default function GarimAgentOrbWithFace({
           }
 
           50% {
-            translate: -5px -8px;
-            rotate: -4deg;
+            translate: -3px -4px;
+            rotate: -5deg;
           }
         }
 
