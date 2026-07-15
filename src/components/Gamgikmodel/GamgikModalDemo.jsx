@@ -3,18 +3,23 @@ import GamgikAgentOrbWithFace from './GamgikAgentOrbWithFace.jsx';
 
 export default function GamgikModalDemo() {
   const expressionStartTimerRef = useRef(null);
+  const expressionReactionTimerRef = useRef(null);
   const expressionTimerRef = useRef(null);
   const [expressionOverride, setExpressionOverride] = useState(null);
 
   useEffect(() => {
     return () => {
       if (expressionStartTimerRef.current) window.clearTimeout(expressionStartTimerRef.current);
+      if (expressionReactionTimerRef.current) {
+        window.clearTimeout(expressionReactionTimerRef.current);
+      }
       if (expressionTimerRef.current) window.clearTimeout(expressionTimerRef.current);
     };
   }, []);
 
   function showExpression(expression, duration = 900) {
     if (expressionStartTimerRef.current) window.clearTimeout(expressionStartTimerRef.current);
+    if (expressionReactionTimerRef.current) window.clearTimeout(expressionReactionTimerRef.current);
     if (expressionTimerRef.current) window.clearTimeout(expressionTimerRef.current);
 
     setExpressionOverride(expression);
@@ -26,6 +31,26 @@ export default function GamgikModalDemo() {
         setExpressionOverride(null);
       }, 120);
     }, duration);
+  }
+
+  function showSleepyExpression() {
+    if (expressionStartTimerRef.current) window.clearTimeout(expressionStartTimerRef.current);
+    if (expressionReactionTimerRef.current) window.clearTimeout(expressionReactionTimerRef.current);
+    if (expressionTimerRef.current) window.clearTimeout(expressionTimerRef.current);
+
+    setExpressionOverride('sleepy');
+
+    expressionReactionTimerRef.current = window.setTimeout(() => {
+      setExpressionOverride('surprised');
+
+      expressionStartTimerRef.current = window.setTimeout(() => {
+        setExpressionOverride('blink');
+
+        expressionTimerRef.current = window.setTimeout(() => {
+          setExpressionOverride(null);
+        }, 120);
+      }, 620);
+    }, 1760);
   }
 
   return (
@@ -63,6 +88,14 @@ export default function GamgikModalDemo() {
           className="rounded-md border border-sky-200/30 bg-sky-300/12 px-5 py-2.5 text-sm font-semibold text-sky-50 shadow-[0_0_24px_rgba(125,211,252,0.14)] transition hover:border-sky-100/55 hover:bg-sky-300/20 focus:outline-none focus:ring-2 focus:ring-sky-200/55"
         >
           ㅠ ㅠ 우는 표정
+        </button>
+
+        <button
+          type="button"
+          onClick={showSleepyExpression}
+          className="rounded-md border border-violet-200/30 bg-violet-300/12 px-5 py-2.5 text-sm font-semibold text-violet-50 shadow-[0_0_24px_rgba(196,181,253,0.14)] transition hover:border-violet-100/55 hover:bg-violet-300/20 focus:outline-none focus:ring-2 focus:ring-violet-200/55"
+        >
+          졸린 표정
         </button>
       </div>
     </section>

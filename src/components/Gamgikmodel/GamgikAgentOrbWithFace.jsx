@@ -198,7 +198,6 @@ export default function GarimAgentOrbWithFace({
     if (event.detail >= 2) {
       if (clickTimerRef.current) window.clearTimeout(clickTimerRef.current);
       playClickMotion();
-      triggerExpression('surprised', 720);
       return;
     }
 
@@ -220,7 +219,11 @@ export default function GarimAgentOrbWithFace({
       }}
       onClick={handleClick}
     >
-      <div className={`garim-agent-motion ${isClickMoving ? 'is-click-moving' : ''}`}>
+      <div
+        className={`garim-agent-motion ${
+          isClickMoving || visibleExpression === 'surprised' ? 'is-click-moving' : ''
+        }`}
+      >
         <GarimReferenceOrb size={size} speed={speed} motion={motion} statusKey={statusKey} />
 
         <AgentFace look={look} expression={visibleExpression} />
@@ -521,6 +524,23 @@ export default function GarimAgentOrbWithFace({
 
         .garim-agent-face.is-surprised .garim-face-glow {
           opacity: 0.9;
+        }
+
+        .garim-agent-face.is-sleepy .garim-eye {
+          animation: garimSleepyEyes 2000ms ease-in-out forwards;
+          opacity: 0.78;
+          filter:
+            drop-shadow(0 0 3px rgba(255, 255, 255, 0.86))
+            drop-shadow(0 0 7px rgba(190, 235, 255, 0.5))
+            drop-shadow(0 0 14px rgba(139, 92, 246, 0.34));
+        }
+
+        .garim-agent-face.is-sleepy .garim-eye-pillar {
+          opacity: 0.82;
+        }
+
+        .garim-agent-face.is-sleepy .garim-face-glow {
+          opacity: 0.52;
         }
 
         .garim-agent-face.is-happy .garim-eye {
@@ -857,6 +877,20 @@ export default function GarimAgentOrbWithFace({
 
           100% {
             transform: translate3d(0, 0, 0) scale(1);
+          }
+        }
+
+        @keyframes garimSleepyEyes {
+          0% {
+            transform: translateY(-50%) scaleY(1);
+          }
+
+          58% {
+            transform: translateY(-50%) scaleY(0.58);
+          }
+
+          100% {
+            transform: translateY(-50%) scaleY(0.32);
           }
         }
 
