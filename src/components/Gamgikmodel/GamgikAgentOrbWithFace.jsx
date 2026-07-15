@@ -53,6 +53,7 @@ export default function GarimAgentOrbWithFace({
   const clickTimerRef = useRef(null);
   const motionTimerRef = useRef(null);
   const resetTimerRef = useRef(null);
+  const expressionStartTimerRef = useRef(null);
   const expressionTimerRef = useRef(null);
   const expressionRef = useRef('idle');
 
@@ -63,12 +64,17 @@ export default function GarimAgentOrbWithFace({
 
   function triggerExpression(nextExpression, duration = 520) {
     if (resetTimerRef.current) window.clearTimeout(resetTimerRef.current);
+    if (expressionStartTimerRef.current) window.clearTimeout(expressionStartTimerRef.current);
     if (expressionTimerRef.current) window.clearTimeout(expressionTimerRef.current);
 
     setExpression(nextExpression);
 
-    expressionTimerRef.current = window.setTimeout(() => {
-      setExpression('idle');
+    expressionStartTimerRef.current = window.setTimeout(() => {
+      setExpression('blink');
+
+      expressionTimerRef.current = window.setTimeout(() => {
+        setExpression('idle');
+      }, 120);
     }, duration);
   }
 
@@ -102,6 +108,7 @@ export default function GarimAgentOrbWithFace({
       if (clickTimerRef.current) window.clearTimeout(clickTimerRef.current);
       if (motionTimerRef.current) window.clearTimeout(motionTimerRef.current);
       if (resetTimerRef.current) window.clearTimeout(resetTimerRef.current);
+      if (expressionStartTimerRef.current) window.clearTimeout(expressionStartTimerRef.current);
       if (expressionTimerRef.current) window.clearTimeout(expressionTimerRef.current);
     };
   }, []);
@@ -217,6 +224,25 @@ export default function GarimAgentOrbWithFace({
           <i className="garim-surprise-mark garim-surprise-mark-left" />
           <i className="garim-surprise-mark garim-surprise-mark-middle" />
           <i className="garim-surprise-mark garim-surprise-mark-right" />
+        </div>
+
+        <div className={`garim-anger-mark is-${visibleExpression}`} aria-hidden="true">
+          <span className="garim-anger-corner garim-anger-corner-top">
+            <i className="garim-chevron-line garim-chevron-top" />
+            <i className="garim-chevron-line garim-chevron-bottom" />
+          </span>
+          <span className="garim-anger-corner garim-anger-corner-right">
+            <i className="garim-chevron-line garim-chevron-top" />
+            <i className="garim-chevron-line garim-chevron-bottom" />
+          </span>
+          <span className="garim-anger-corner garim-anger-corner-bottom">
+            <i className="garim-chevron-line garim-chevron-top" />
+            <i className="garim-chevron-line garim-chevron-bottom" />
+          </span>
+          <span className="garim-anger-corner garim-anger-corner-left">
+            <i className="garim-chevron-line garim-chevron-top" />
+            <i className="garim-chevron-line garim-chevron-bottom" />
+          </span>
         </div>
       </div>
 
@@ -535,6 +561,46 @@ export default function GarimAgentOrbWithFace({
           opacity: 0.86;
         }
 
+        .garim-agent-face.is-angry .garim-eye {
+          width: 10%;
+          height: 64%;
+          filter:
+            drop-shadow(0 0 5px rgba(255, 255, 255, 1))
+            drop-shadow(0 0 13px rgba(210, 245, 255, 0.8))
+            drop-shadow(0 0 22px rgba(139, 92, 246, 0.52));
+        }
+
+        .garim-agent-face.is-angry .garim-eye-left {
+          left: 20%;
+        }
+
+        .garim-agent-face.is-angry .garim-eye-right {
+          right: 20%;
+        }
+
+        .garim-agent-face.is-angry .garim-eye-pillar {
+          opacity: 1;
+          height: 100%;
+          transform: translate(-50%, -50%);
+        }
+
+        .garim-agent-face.is-angry .garim-eye-left .garim-eye-pillar {
+          transform: translate(-50%, -50%) rotate(-24deg);
+        }
+
+        .garim-agent-face.is-angry .garim-eye-right .garim-eye-pillar {
+          transform: translate(-50%, -50%) rotate(24deg);
+        }
+
+        .garim-agent-face.is-angry .garim-chevron-top,
+        .garim-agent-face.is-angry .garim-chevron-bottom {
+          opacity: 0;
+        }
+
+        .garim-agent-face.is-angry .garim-face-glow {
+          opacity: 0.82;
+        }
+
         .garim-surprise-marks {
           position: absolute;
           left: 18%;
@@ -596,6 +662,73 @@ export default function GarimAgentOrbWithFace({
           transform: rotate(-10deg);
         }
 
+        .garim-anger-mark {
+          position: absolute;
+          left: 61%;
+          top: 17%;
+          width: 19%;
+          height: 19%;
+          z-index: 6;
+          pointer-events: none;
+          opacity: 0;
+          transform: scale(0.82) rotate(-8deg);
+          transform-origin: 50% 50%;
+          transition:
+            opacity 120ms ease,
+            transform 180ms cubic-bezier(0.2, 1.2, 0.24, 1);
+        }
+
+        .garim-anger-mark.is-angry {
+          opacity: 1;
+          transform: scale(1) rotate(-8deg);
+        }
+
+        .garim-anger-corner {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 47%;
+          height: 47%;
+          transform-origin: 0% 50%;
+          filter:
+            drop-shadow(0 0 4px rgba(255, 255, 255, 0.96))
+            drop-shadow(0 0 10px rgba(210, 245, 255, 0.72))
+            drop-shadow(0 0 18px rgba(139, 92, 246, 0.48));
+        }
+
+        .garim-anger-corner .garim-chevron-line {
+          left: 13%;
+          top: 50%;
+          width: 68%;
+          height: 24%;
+          opacity: 1;
+          transform-origin: 8% 50%;
+        }
+
+        .garim-anger-corner .garim-chevron-top {
+          transform: translateY(-50%) rotate(-42deg);
+        }
+
+        .garim-anger-corner .garim-chevron-bottom {
+          transform: translateY(-50%) rotate(42deg);
+        }
+
+        .garim-anger-corner-top {
+          transform: rotate(-90deg) translateX(4%);
+        }
+
+        .garim-anger-corner-right {
+          transform: rotate(0deg) translateX(4%);
+        }
+
+        .garim-anger-corner-bottom {
+          transform: rotate(90deg) translateX(4%);
+        }
+
+        .garim-anger-corner-left {
+          transform: rotate(180deg) translateX(4%);
+        }
+
         .garim-agent-orb-wrap:hover .garim-agent-face {
           opacity: 1;
         }
@@ -652,7 +785,8 @@ export default function GarimAgentOrbWithFace({
           .garim-eye,
           .garim-face-glow,
           .garim-eye-pillar,
-          .garim-chevron-line {
+          .garim-chevron-line,
+          .garim-anger-mark {
             transition: none !important;
             animation: none !important;
           }
